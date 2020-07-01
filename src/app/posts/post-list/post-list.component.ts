@@ -12,16 +12,19 @@ import { PostsService } from '../posts.service';
 export class PostListComponent implements OnInit, OnDestroy {
   posts: Post[] = [];
   private postsSub: Subscription;
+  isLoading = false;
 
   constructor(private postsService: PostsService) {
     this.posts = [];
   }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.postsService.getPosts();
     this.postsSub = this.postsService
       .getPostUpdateListener()
       .subscribe((post: Post[]) => {
+        this.isLoading = false;
         this.posts = post;
       });
   }
