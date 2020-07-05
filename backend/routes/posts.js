@@ -76,10 +76,17 @@ router.put(
       title: req.body.title,
       content: req.body.content,
       imagePath: imagePath,
+      creator: req.userData.userId,
     });
-    console.log(post);
-    Post.updateOne({ _id: req.params.id }, post).then((result) => {
-      res.status(200).json({ message: "Update successful!" });
+    Post.updateOne(
+      { _id: req.params.id, creater: req.userData.userId },
+      post
+    ).then((result) => {
+      if (result.nModified > 0) {
+        res.status(200).json({ message: "Update successful!" });
+      } else {
+        res.status(401).json({ message: "No authorized!" });
+      }
     });
   }
 );
@@ -90,21 +97,17 @@ router.post(
   multer({ storage: storage }).single("image"),
   (req, res, next) => {
     const url = req.protocol + "://" + req.get("host");
+    console.log("here you go for user object:", req.userData.userId);
     const post = new Post({
       title: req.body.title,
       content: req.body.content,
       imagePath: url + "/images/" + req.file.filename,
+      creator: req.userData.userId,
     });
     post.save().then((createdPost) => {
       res.status(201).json({
         message: "Post Added Successfully!",
         post: {
-          // id: createdPost._id,
-          // title: createdPost.title,
-          // content: createdPost.content,
-          // imagePath: createdPost.imagePath
-
-          //JS new syntax to return a copy of createdPost with id as an additional field
           ...createdPost,
           id: createdPost._id,
         },
@@ -114,8 +117,15 @@ router.post(
 );
 
 router.delete("/:id", checkAuth, (req, res, next) => {
-  Post.deleteOne({ _id: req.params.id }).then((result) => {});
-  res.status(200).json({ message: "Post Deleted!" });
+  Post.deleteOne({ _id: req.params.id, creator: req.userData.userId }).then(
+    (result) => {
+      if (result.n > 0) {
+        res.status(200).json({ message: "Post Deleted!" });
+      } else {
+        res.status(401).json({ message: "No authorized!" });
+      }
+    }
+  );
 });
 
 module.exports = router;

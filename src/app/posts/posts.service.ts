@@ -9,14 +9,16 @@ import { Post } from './post.model';
 @Injectable({ providedIn: 'root' })
 export class PostsService {
   private posts: Post[] = [];
-  private postsUpdated = new Subject<{posts: Post[], postCount: number}>();
+  private postsUpdated = new Subject<{ posts: Post[]; postCount: number }>();
 
   constructor(private http: HttpClient, private router: Router) {}
 
   getPosts(postsPerPage: number, currentPage: number) {
     const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
-      .get<{ message: string; posts: any, maxPosts: number }>('http://localhost:3000/api/posts' + queryParams)
+      .get<{ message: string; posts: any; maxPosts: number }>(
+        'http://localhost:3000/api/posts' + queryParams
+      )
       .pipe(
         map((postData) => {
           return {
@@ -26,14 +28,19 @@ export class PostsService {
                 content: post.content,
                 id: post._id,
                 imagePath: post.imagePath,
+                creator: post.creator,
               };
-          }),
-          maxPosts: postData.maxPosts
-        };
-      })
-    ).subscribe((transformedPostData) => {
+            }),
+            maxPosts: postData.maxPosts,
+          };
+        })
+      )
+      .subscribe((transformedPostData) => {
         this.posts = transformedPostData.posts;
-        this.postsUpdated.next({posts: [...this.posts], postCount: transformedPostData.maxPosts});
+        this.postsUpdated.next({
+          posts: [...this.posts],
+          postCount: transformedPostData.maxPosts,
+        });
       });
   }
 
@@ -47,6 +54,7 @@ export class PostsService {
       title: string;
       content: string;
       imagePath: string;
+      creator: string;
     }>('http://localhost:3000/api/posts/' + id);
   }
 
@@ -67,7 +75,7 @@ export class PostsService {
 
   updatePost(id: string, title: string, content: string, image: File | string) {
     let postData: Post | FormData;
-    if (typeof(image) === 'object') {
+    if (typeof image === 'object') {
       postData = new FormData();
       postData.append('id', id);
       postData.append('title', title);
@@ -79,6 +87,7 @@ export class PostsService {
         title: title,
         content: content,
         imagePath: image,
+        creator: null
       };
     }
 
