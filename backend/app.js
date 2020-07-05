@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
@@ -9,7 +9,11 @@ const userRoutes = require("./routes/user");
 const app = express();
 
 mongoose
-  .connect("mongodb+srv://prayal:9dElbotXAcfZImxi@cluster0.ami3n.mongodb.net/node-angular&w=majority")
+  .connect(
+    "mongodb+srv://prayal:" +
+      process.env.MONGO_ATLAS_PW +
+      "@cluster0.ami3n.mongodb.net/node-angular&w=majority"
+  )
   .then(() => {
     console.log("Connected to database!");
   })
@@ -19,7 +23,7 @@ mongoose
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/images', express.static(path.join('backend/images')));
+app.use("/images", express.static(path.join("backend/images")));
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

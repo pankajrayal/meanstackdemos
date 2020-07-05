@@ -1,7 +1,6 @@
 import {
   Component,
   Output,
-  EventEmitter,
   OnInit,
   OnDestroy,
 } from '@angular/core';
@@ -31,12 +30,10 @@ export class PostCreateComponent implements OnInit, OnDestroy {
   form: FormGroup;
   imagePreview: string;
 
-  newPost = 'NO CONTENT';
-  @Output() postCreated = new EventEmitter<Post>();
 
   constructor(
-    private postsService: PostsService,
-    private route: ActivatedRoute,
+    public postsService: PostsService,
+    public route: ActivatedRoute,
     private authService: AuthService
   ) {}
 
@@ -73,6 +70,7 @@ export class PostCreateComponent implements OnInit, OnDestroy {
             imagePath: postData.imagePath,
             creator: postData.creator,
           };
+          console.log(this.post);
           this.form.setValue({
             title: this.post.title,
             content: this.post.content,
